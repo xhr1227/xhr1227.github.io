@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>爱心义卖实时排名</title>
+    <style>
+        :root {
+            --primary: #ff7f7f;
+            --bg: #f8f9fa;
+        }
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background: linear-gradient(135deg, #fff5f5 0%, #f8fffe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .ranking {
+            margin-top: 20px;
+        }
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: #fff;
+            margin: 8px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>❤️ 爱心义卖捐款提交</h2>
+            <div class="form-group">
+                <select id="class" required>
+                    <option value="">请选择班级</option>
+                    <!-- 根据实际情况修改班级选项 -->
+                    <option>七年级1班</option>
+                    <option>七年级2班</option>
+                    <option>七年级3班</option>
+                    <option>七年级4班</option>
+                    <option>七年级5班</option>
+                    <option>七年级6班</option>
+                    <option>七年级7班</option>
+                    <option>七年级8班</option>
+                    <option>七年级9班</option>
+                    <option>七年级10班</option>
+                    <option>七年级11班</option>
+                    <option>七年级12班</option>
+                    <option>八年级1班</option>
+                    <option>八年级2班</option>
+                    <option>八年级3班</option>
+                    <option>八年级4班</option>
+                    <option>八年级5班</option>
+                    <option>八年级6班</option>
+                    <option>八年级7班</option>
+                    <option>八年级8班</option>
+                    <option>八年级9班</option>
+                    <option>八年级10班</option>
+                    <option>八年级11班</option>
+                    <option>九年级1班</option>
+                    <option>九年级2班</option>
+                    <option>九年级3班</option>
+                    <option>九年级4班</option>
+                    <option>九年级5班</option>
+                    <option>九年级6班</option>
+                    <option>九年级7班</option>
+                    <option>九年级8班</option>
+                    <option>九年级9班</option>
+                    <option>九年级10班</option>
+                    <option>九年级11班</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="number" id="amount" placeholder="输入金额（元）" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="提交密码" required>
+            </div>
+            <button onclick="submitData()">提交金额</button>
+        </div>
+
+        <div class="card ranking">
+            <h2>🏆 实时爱心排行榜</h2>
+            <div id="rankList"></div>
+        </div>
+    </div>
+
+    <script>
+        // 替换为你的Google脚本部署URL
+        const API_URL =AKfycbxmCFqFi4iGFaCy2A6LojnN6mE1DxMlSeO4DoqedvzgQLo4wSrfuUMtQoFapcKHvA1l ;
+
+        async function submitData() {
+            const cls = document.getElementById('class').value;
+            const amount = document.getElementById('amount').value;
+            const password = document.getElementById('password').value;
+
+            if (!cls || !amount || !password) return alert('请填写完整信息');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        class: cls,
+                        amount: Number(amount),
+                        password: password
+                    })
+                });
+                
+                const result = await response.text();
+                alert(result);
+                loadRanking();
+            } catch (error) {
+                alert('提交失败');
+            }
+        }
+
+        async function loadRanking() {
+            try {
+                const response = await fetch(API_URL);
+                const ranking = await response.json();
+                
+                const rankList = document.getElementById('rankList');
+                rankList.innerHTML = ranking.map(item => `
+                    <div class="rank-item">
+                        <span>第${item.排名}名：${item.班级}</span>
+                        <span>￥${item.总额.toFixed(2)}</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载排名失败');
+            }
+        }
+
+        // 每30秒自动刷新排名
+        setInterval(loadRanking, 30000);
+        // 初始加载
+        loadRanking();
+    </script>
+</body>
+</html>
